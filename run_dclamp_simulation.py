@@ -143,7 +143,7 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
             if ((max(ap_set[i].t)-min(ap_set[i].t)) < 800.0):
                 ap_failure = True
 
-    except OverflowError:
+    except (OverflowError, IndexError):
         ap_failure = True
         ap_set = {}
         
