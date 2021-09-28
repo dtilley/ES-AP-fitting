@@ -80,7 +80,12 @@ def main():
     the Kernik-Clancy model to an experimental AP data set.
     The 14 membrane conductance parameters are optimized.
     The fitness is defined as the sum of RMSD from each AP."""
- 
+
+    # Clock the start time.
+    now = datetime.now()
+    dt = now.strftime("%m%d%y_%H%M%S")
+    print('Run start time: '+dt)
+    
     NUM_PARAMS = 14
 
     # Load in experimental AP set
@@ -123,20 +128,23 @@ def main():
     toolbox.register("map", p.map)
 
     #  Algorithm specific settings
-    MU = 100  # Population size at the end of each generation including gen(0)
-    LAMBDA = 100  # Number of new individuals generated per generation
+    MU = 10  # Population size at the end of each generation including gen(0)
+    LAMBDA = 20  # Number of new individuals generated per generation
     N_GEN = 10
     N_HOF = int((0.1) * MU * N_GEN)
 
     hof = tools.HallOfFame(N_HOF)
     pop = toolbox.population(n=MU)
 
-    pop, logbook = algorithms.eaMuPlusLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
+    print('(mu,lambda): ('+str(MU)+','+str(LAMBDA)+')')
+    
+    pop, logbook = algorithms.eaMuCommaLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
                                              cxpb=0.6, mutpb=0.3, ngen=N_GEN, stats=stats,
                                              halloffame=hof, verbose=False)
 
     now = datetime.now()
     dt = now.strftime("%m%d%y_%H%M%S")
+    print('Run end time: '+dt)
     logbook_pd = pd.DataFrame(logbook)
     logbook_pd.to_csv('logbook_'+dt+'.txt', sep=' ', index=False)
 
