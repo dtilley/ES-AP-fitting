@@ -88,6 +88,10 @@ def main():
     
     NUM_PARAMS = 14
 
+    PARAM_NAMES = ['phi', 'G_K1', 'G_Kr', 'G_Ks', 'G_to', 'P_CaL',
+                   'G_CaT', 'G_Na', 'G_F', 'K_NaCa', 'P_NaK',
+                   'G_b_Na', 'G_b_Ca', 'G_PCa']
+    
     # Load in experimental AP set
     # Cell 1 recorded 12/24/20 Ishihara dynamic-clamp 0.75 pA/pF
     path_to_aps = '/home/drew/projects/iPSC-GA_Aug21/cell_1/AP_set'
@@ -130,11 +134,13 @@ def main():
     #  Algorithm specific settings
     MU = 10  # Population size at the end of each generation including gen(0)
     LAMBDA = 20  # Number of new individuals generated per generation
-    N_GEN = 10
+    N_GEN = 3
     N_HOF = int((0.1) * MU * N_GEN)
 
     hof = tools.HallOfFame(N_HOF)
     pop = toolbox.population(n=MU)
+    pop_first_df = pd.DataFrame(pop, columns=PARAM_NAMES)
+    pop_first_df.to_csv('pop_first_'+dt+'.txt', sep=' ', index=False)
 
     print('(mu,lambda): ('+str(MU)+','+str(LAMBDA)+')')
     
@@ -145,18 +151,14 @@ def main():
     now = datetime.now()
     dt = now.strftime("%m%d%y_%H%M%S")
     print('Run end time: '+dt)
-    logbook_pd = pd.DataFrame(logbook)
-    logbook_pd.to_csv('logbook_'+dt+'.txt', sep=' ', index=False)
+    logbook_df = pd.DataFrame(logbook)
+    logbook_df.to_csv('logbook_'+dt+'.txt', sep=' ', index=False)
 
-    PARAM_NAMES = ['phi', 'G_K1', 'G_Kr', 'G_Ks', 'G_to', 'P_CaL',
-                   'G_CaT', 'G_Na', 'G_F', 'K_NaCa', 'P_NaK',
-                   'G_b_Na', 'G_b_Ca', 'G_PCa']
+    pop_df = pd.DataFrame(pop, columns=PARAM_NAMES)
+    pop_df.to_csv('pop_final_'+dt+'.txt', sep=' ', index=False)
 
-    pop_pd = pd.DataFrame(pop, columns=PARAM_NAMES)
-    pop_pd.to_csv('pop_final_'+dt+'.txt', sep=' ', index=False)
-
-    hof_pd = pd.DataFrame(hof, columns=PARAM_NAMES)
-    hof_pd.to_csv('hof_'+dt+'.txt', sep=' ', index=False)
+    hof_df = pd.DataFrame(hof, columns=PARAM_NAMES)
+    hof_df.to_csv('hof_'+dt+'.txt', sep=' ', index=False)
 
 
 if __name__ == '__main__':
