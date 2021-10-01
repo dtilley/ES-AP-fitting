@@ -93,10 +93,10 @@ def main():
                    'G_b_Na', 'G_b_Ca', 'G_PCa']
     
     # Load in experimental AP set
-    # Cell 1 recorded 12/24/20 Ishihara dynamic-clamp 0.75 pA/pF
-    path_to_aps = '/home/drew/projects/iPSC-GA_Aug21/cell_1/AP_set'
-    cell_1 = ExperimentalAPSet(path=path_to_aps, file_prefix='cell_1_',
-                               file_suffix='_SAP.txt', cell_id=1, dc_ik1=0.75)
+    # Cell 2 recorded 12/24/20 Ishihara dynamic-clamp 1.0 pA/pF
+    path_to_aps = '/home/drew/projects/iPSC_EA_Fitting_Sep2021/cell_2/AP_set'
+    cell_2 = ExperimentalAPSet(path=path_to_aps, file_prefix='cell_2_',
+                               file_suffix='_SAP.txt', cell_id=2, dc_ik1=1.0)
 
     # Define classes for EA with DEAP libaries. #
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
@@ -117,7 +117,7 @@ def main():
     toolbox.register("mutate", mutateES)
 
     # Selection
-    toolbox.register("evaluate", fitness, ExperAPSet=cell_1)
+    toolbox.register("evaluate", fitness, ExperAPSet=cell_2)
     toolbox.register("select", tools.selTournament, tournsize=3)
 
     # Register some statistical functions to the toolbox.
@@ -132,12 +132,16 @@ def main():
     toolbox.register("map", p.map)
 
     #  Algorithm specific settings
-    MU = 10  # Population size at the end of each generation including gen(0)
-    LAMBDA = 20  # Number of new individuals generated per generation
-    N_GEN = 3
+    MU = 100  # Population size at the end of each generation including gen(0)
+    LAMBDA = 150  # Number of new individuals generated per generation
+    N_GEN = 10
     N_HOF = int((0.1) * MU * N_GEN)
+    #N_HOF = 2
 
     hof = tools.HallOfFame(N_HOF)
+    hof_fitness = []
+    pop_fitness = []
+    pop_strategy = []
     pop = toolbox.population(n=MU)
     pop_first_df = pd.DataFrame(pop, columns=PARAM_NAMES)
     pop_first_df.to_csv('pop_first_'+dt+'.txt', sep=' ', index=False)
@@ -145,8 +149,8 @@ def main():
     print('(mu,lambda): ('+str(MU)+','+str(LAMBDA)+')')
     
     pop, logbook = algorithms.eaMuCommaLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
-                                             cxpb=0.6, mutpb=0.3, ngen=N_GEN, stats=stats,
-                                             halloffame=hof, verbose=False)
+                                              cxpb=0.6, mutpb=0.3, ngen=N_GEN, stats=stats,
+                                              halloffame=hof, verbose=False)
 
     now = datetime.now()
     dt = now.strftime("%m%d%y_%H%M%S")
@@ -160,6 +164,18 @@ def main():
     hof_df = pd.DataFrame(hof, columns=PARAM_NAMES)
     hof_df.to_csv('hof_'+dt+'.txt', sep=' ', index=False)
 
+    for i in hof:
+        hof_fitness.append(i.fitness.values[0])
+    hof_fitness_pd = pd.DataFrame(hof_fitness, columns=["fitness"])
+    hof_fitness_pd.to_csv('hof_fitness_'+dt+'.txt', sep=' ', index=False)
+
+    for i in pop:
+        pop_fitness.append(i.fitness.values[0])
+        pop_strategy.append(i.strategy)
+    pop_fitness_df = pd.DataFrame(pop_fitness, columns=["fitness"])
+    pop_fitness_df.to_csv('pop_fitness_'+dt+'.txt', sep=' ', index=False)
+    pop_strategy_df = pd.DataFrame(pop_strategy, columns=PARAM_NAMES)
+    pop_strategy_df.to_csv('pop_strategy_'+dt+'.txt', sep=' ', index=False)
 
 if __name__ == '__main__':
     main()
