@@ -65,11 +65,24 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
     # Create 10s paced protocol
     KERNIK_PROTOCOL = protocols.PacedProtocol(model_name="Kernik", stim_end=10000, stim_mag=2)
 
+    # Create AP_set dict
+    ap_set = {'cntrl': None,
+              '-0.15_ical': None,
+              '0.7_ical': None,
+              '-0.25_ikr': None,
+              '0.9_ikr': None,
+              '-0.9_ito': None,
+              '1.5_ito': None,
+              '10_iks': None,
+              '4_iks': None}
+
     try:
         # Run Ishihara IK1
         tr_ishi = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         y_ishi_final = kci.y_initial
         tr_ishi.get_last_ap()
+        ap_set['cntrl'] = tr_ishi.last_ap
+        del tr_ishi
    
         # Run ICal -0.15
         kci.y_initial = y_ishi_final
@@ -77,6 +90,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
         kci._CellModel__no_ion_selective = {'I_K1_Ishi': ik1_leak, 'I_CaL': ical_leak}
         tr_ical_decrease = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         tr_ical_decrease.get_last_ap()
+        ap_set['-0.15_ical'] = tr_ical_decrease.last_ap
+        del tr_ical_decrease
    
         # Run ICal 0.7
         kci.y_initial = y_ishi_final
@@ -84,6 +99,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
         kci._CellModel__no_ion_selective = {'I_K1_Ishi': ik1_leak, 'I_CaL': ical_leak}
         tr_ical_increase = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         tr_ical_increase.get_last_ap()
+        ap_set['0.7_ical'] = tr_ical_increase.last_ap
+        del tr_ical_increase
 
         # Run IKr -0.25
         kci.y_initial = y_ishi_final
@@ -91,6 +108,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
         kci._CellModel__no_ion_selective = {'I_K1_Ishi': ik1_leak, 'I_Kr': ikr_leak}
         tr_ikr_decrease = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         tr_ikr_decrease.get_last_ap()
+        ap_set['-0.25_ikr'] = tr_ikr_decrease.last_ap
+        del tr_ikr_decrease
 
         # Run IKr 0.9
         kci.y_initial = y_ishi_final
@@ -98,6 +117,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
         kci._CellModel__no_ion_selective = {'I_K1_Ishi': ik1_leak, 'I_Kr': ikr_leak}
         tr_ikr_increase = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         tr_ikr_increase.get_last_ap()
+        ap_set['0.9_ikr'] = tr_ikr_increase.last_ap
+        del tr_ikr_increase
 
         # Run Ito -0.9
         kci.y_initial = y_ishi_final
@@ -105,6 +126,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
         kci._CellModel__no_ion_selective = {'I_K1_Ishi': ik1_leak, 'I_To': ito_leak}
         tr_ito_decrease = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         tr_ito_decrease.get_last_ap()
+        ap_set['-0.9_ito'] = tr_ito_decrease.last_ap
+        del tr_ito_decrease
 
         # Run Ito 1.5
         kci.y_initial = y_ishi_final
@@ -112,6 +135,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
         kci._CellModel__no_ion_selective = {'I_K1_Ishi': ik1_leak, 'I_To': ito_leak}
         tr_ito_increase = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         tr_ito_increase.get_last_ap()
+        ap_set['1.5_ito'] = tr_ito_increase.last_ap
+        del tr_ito_increase
 
         # Run IKs 10
         kci.y_initial = y_ishi_final
@@ -119,6 +144,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
         kci._CellModel__no_ion_selective = {'I_K1_Ishi': ik1_leak, 'I_Ks': iks_leak}
         tr_iks_10 = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         tr_iks_10.get_last_ap()
+        ap_set['10_iks'] = tr_iks_10.last_ap
+        del tr_iks_10
 
         # Run IKs 4
         kci.y_initial = y_ishi_final
@@ -126,17 +153,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
         kci._CellModel__no_ion_selective = {'I_K1_Ishi': ik1_leak, 'I_Ks': iks_leak}
         tr_iks_4 = kci.generate_response(KERNIK_PROTOCOL, is_no_ion_selective=True)
         tr_iks_4.get_last_ap()
-
-        # Return AP set
-        ap_set = {'cntrl': tr_ishi.last_ap,
-                  '-0.15_ical': tr_ical_decrease.last_ap,
-                  '0.7_ical': tr_ical_increase.last_ap,
-                  '-0.25_ikr': tr_ikr_decrease.last_ap,
-                  '0.9_ikr': tr_ikr_increase.last_ap,
-                  '-0.9_ito': tr_ito_decrease.last_ap,
-                  '1.5_ito': tr_ito_increase.last_ap,
-                  '10_iks': tr_iks_10.last_ap,
-                  '4_iks': tr_iks_4.last_ap}
+        ap_set['4_iks'] = tr_iks_4.last_ap
+        del tr_iks_4
 
         # Check if APs were generated
         for i in ap_set.keys():
@@ -146,5 +164,5 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
     except (OverflowError, IndexError):
         ap_failure = True
         ap_set = {}
-        
+       
     return ap_set, ap_failure
