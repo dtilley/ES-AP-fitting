@@ -76,7 +76,7 @@ def cxESBlend(ind1, ind2, alpha):
 
 # Add bash arguments eventually. main() #
 def main():
-    """This function applies the DEAP algorithm (mu+lambda) to fit
+    """This function applies the DEAP algorithm (mu,lambda) to fit
     the Kernik-Clancy model to an experimental AP data set.
     The 14 membrane conductance parameters are optimized.
     The fitness is defined as the sum of RMSD from each AP."""
@@ -107,7 +107,7 @@ def main():
     # Create a toolbox to store the EA objects and functions.
     toolbox = base.Toolbox()
 
-    # The (mu + lambda)_EA the toolbox must contain: mate, mutate, select, evaluate.
+    # The (mu,lambda)_EA the toolbox must contain: mate, mutate, select, evaluate.
     # These functions allow the toolbox to populate a population with individuals.
     toolbox.register("individual", generateES, creator.Individual, creator.Strategy, NUM_PARAMS)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
