@@ -9,7 +9,7 @@ from run_dclamp_simulation import run_ind_dclamp
 from cell_recording import ExperimentalAPSet
 from multiprocessing import Pool
 
-from deap import algorithms
+from algorithms import eaMuCommaLambda
 from deap import base
 from deap import creator
 from deap import tools
@@ -40,7 +40,7 @@ def generateES(ind_clss, strategy_clss, size):
 
 
 def fitness(ind, ExperAPSet):
-    model_APSet = run_ind_dclamp(ind, dc_ik1=ExperAPSet.dc_ik1)
+    model_APSet = run_ind_dclamp(ind, dc_ik1=ExperAPSet.dc_ik1, printIND=True)
     rmsd_total = (sum(ExperAPSet.score(model_APSet).values()),)
     return rmsd_total
 
@@ -134,9 +134,9 @@ toolbox.register("map", p.map)
 #  Algorithm specific settings
 MU = 5  # Population size at the end of each generation including gen(0)
 LAMBDA = 10  # Number of new individuals generated per generation
-N_GEN = 1
-#N_HOF = int((0.1) * MU * N_GEN)
-N_HOF = 5
+N_GEN = 2
+N_HOF = int((0.1) * LAMBDA * N_GEN)
+#N_HOF = 5
 
 hof = tools.HallOfFame(N_HOF)
 pop = toolbox.population(n=MU)
@@ -144,10 +144,10 @@ pop = toolbox.population(n=MU)
 #pop_first_df.to_csv('pop_first_'+dt+'.txt', sep=' ', index=False)
 
 print('(mu,lambda): ('+str(MU)+','+str(LAMBDA)+')')
-    
-pop, logbook = algorithms.eaMuCommaLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
-                                          cxpb=0.6, mutpb=0.3, ngen=N_GEN, stats=stats,
-                                          halloffame=hof, verbose=False)
+
+pop, logbook = eaMuCommaLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
+                               cxpb=0.6, mutpb=0.3, ngen=N_GEN, stats=stats,
+                               halloffame=hof, verbose=False)
 
 now = datetime.now()
 dt = now.strftime("%m%d%y_%H%M%S")

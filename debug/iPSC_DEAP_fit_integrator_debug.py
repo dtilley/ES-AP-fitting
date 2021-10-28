@@ -9,7 +9,7 @@ from run_dclamp_simulation import run_ind_dclamp
 from cell_recording import ExperimentalAPSet
 from multiprocessing import Pool
 
-from deap import algorithms
+from algorithms import eaMuCommaLambda
 from deap import base
 from deap import creator
 from deap import tools
@@ -60,7 +60,7 @@ def initRstrtPop(container, rstInd, pop_data):
 
 
 def fitness(ind, ExperAPSet):
-    model_APSet = run_ind_dclamp(ind, dc_ik1=ExperAPSet.dc_ik1, printIND=False)
+    model_APSet = run_ind_dclamp(ind, dc_ik1=ExperAPSet.dc_ik1, printIND=True)
     rmsd_total = (sum(ExperAPSet.score(model_APSet).values()),)
     return rmsd_total
 
@@ -175,9 +175,9 @@ def iPSC_EA_fit_normal(outdir, MU=4, LAMBDA=8, NGEN=3):
     filename = outdir+'pop_first_'+dt+'.txt'
     pop_first_df.to_csv(filename, sep=' ', index=False)
 
-    pop, logbook = algorithms.eaMuCommaLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
-                                              cxpb=0.6, mutpb=0.3, ngen=NGEN, stats=stats,
-                                              halloffame=hof, verbose=False)
+    pop, logbook = eaMuCommaLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
+                                   cxpb=0.6, mutpb=0.3, ngen=NGEN, stats=stats,
+                                   halloffame=hof, verbose=False, writeGENS=True)
 
     now = datetime.now()
     dt = now.strftime("%m%d%y_%H%M%S")
@@ -292,9 +292,9 @@ def iPSC_EA_fit_restart(outdir, pop_, hof_, NGEN):
     filename = outdir+'pop_first_'+dt+'.txt'
     pop_first_df.to_csv(filename, sep=' ', index=False)
 
-    pop, logbook = algorithms.eaMuCommaLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
-                                              cxpb=0.6, mutpb=0.3, ngen=NGEN, stats=stats,
-                                              halloffame=hof, verbose=False)
+    pop, logbook = eaMuCommaLambda(pop, toolbox, mu=MU, lambda_=LAMBDA,
+                                   cxpb=0.6, mutpb=0.3, ngen=NGEN, stats=stats,
+                                   halloffame=hof, verbose=False, writeGENS=True)
 
     now = datetime.now()
     dt = now.strftime("%m%d%y_%H%M%S")

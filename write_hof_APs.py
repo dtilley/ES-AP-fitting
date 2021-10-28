@@ -12,7 +12,7 @@ def main(argv):
     if (len(argv) != 2):
         print('write_hof_APs.py hof_file NUM_MODELS')
         return
-    elif (os.path.exists(argv[0]) != True):
+    elif (os.path.exists(argv[0]) is False):
         print('Cannot find hof_file.')
         print('write_hof_APs.py hof_file NUM_MODELS')
         return

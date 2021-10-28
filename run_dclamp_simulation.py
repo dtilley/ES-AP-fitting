@@ -2,7 +2,7 @@ from cell_models import protocols
 from cell_models.kernik import KernikModel
 
 
-def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
+def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0, printIND=False):
     """ Create model from individual DEAP object.
     The optimized parameters are limited to the membrane conductances/fluxes.
     There is an additional parameter: phi for leak on the dynamic clamp.
@@ -23,10 +23,13 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
     """
 
     ap_failure = False
+
+    # Print individual passed to function (debug)
+    if (printIND):
+        print(list(ind))
     
     # Create the model from the DEAP individual.
     kci = KernikModel()
-
    
     # Apply dynamic-clamp leak
     if (ind[0] >= 0.0 and ind[0] < 1.0):
@@ -164,5 +167,8 @@ def run_ind_dclamp(ind, dc_ik1=1.0, nai=10.0, ki=130.0):
     except (OverflowError, IndexError):
         ap_failure = True
         ap_set = {}
-       
+
+    if (printIND):
+        print('Completed.')
+
     return ap_set, ap_failure
